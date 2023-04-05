@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import ibf2022.paf.assessment.server.models.User;
+import ibf2022.paf.assessment.server.services.UserException;
 
 // TODO: Task 3
 
@@ -26,22 +27,23 @@ public class UserRepository {
     private JdbcTemplate jdbcTemplate;
 
     public Optional<User> findUserByUsername(String username){
-        User user = jdbcTemplate.queryForObject(MYSQL_FIND_BY_USERNAME, BeanPropertyRowMapper.newInstance(User.class), username);
+        try {
+            User user = jdbcTemplate.queryForObject(MYSQL_FIND_BY_USERNAME, BeanPropertyRowMapper.newInstance(User.class), username);
 
-        if (null == user){
+            return Optional.of(user);
+        } catch (Exception ex) {
             return Optional.empty();
         }
-        return Optional.of(user);
+
     }
 
-    public String insertUser(User user){
+    public String insertUser(User user)throws UserException{
         String user_id = UUID.randomUUID().toString().substring(0,8);
 
         Integer iUpdated = jdbcTemplate.update(MYSQL_INSERT_NEW_USER, user_id, user.getUsername(), user.getName());
 
         if(iUpdated <= 0){
-            //return execption here
-            return null;
+            throw new UserException("Something went wrong, cannot update user");
         }
         return user_id;
         

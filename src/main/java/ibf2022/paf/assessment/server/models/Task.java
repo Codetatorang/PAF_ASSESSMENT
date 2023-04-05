@@ -1,6 +1,6 @@
 package ibf2022.paf.assessment.server.models;
 
-import java.sql.Date;
+import java.util.Date;
 
 // TODO: Task 4
 
