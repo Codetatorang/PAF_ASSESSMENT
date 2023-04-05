@@ -8,7 +8,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,11 +34,12 @@ public class TasksController {
 
     @PostMapping(path = "/task", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public void saveTasks(@RequestBody MultiValueMap<String, String> payload, ModelAndView mav) throws ParseException, UserException{
+    public ResponseEntity<ModelAndView> saveTasks(@RequestBody MultiValueMap<String, String> payload) throws ParseException, UserException{
         logger.info("loaded into controller");
         List<Task> tasksList = new ArrayList<Task>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
+        ModelAndView mav = new ModelAndView();
 
         System.out.println(payload.getFirst("username"));
         int counter = 0;
@@ -69,9 +72,17 @@ public class TasksController {
         try {
             todoSvc.upsertTask(tasksList, userName);
         } catch (UserException e) {
-            throw new UserException("Error when saving %s's task: ".formatted(userName) + e.getMessage());
-        }
+            // throw new UserException("Error when saving %s's task: ".formatted(userName) + e.getMessage());
+            mav.setViewName("error");
 
+            return new ResponseEntity<ModelAndView>(mav,HttpStatus.INTERNAL_SERVER_ERROR);
+        } finally {
+            mav.addObject("taskCount", counter);
+            mav.addObject("username", userName);
+            mav.setViewName("result");
+        }
+        
+        return new ResponseEntity<ModelAndView>(mav,HttpStatus.OK);
     }
     
 
