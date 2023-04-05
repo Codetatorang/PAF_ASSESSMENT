@@ -1,6 +1,6 @@
-create database bgg;
+create database railway;
 
-use bgg;
+use railway;
 
 create table user(
 	id int not null auto_increment,	
