@@ -1,6 +1,6 @@
-create database assessment_paf;
+create database bgg;
 
-use assessment_paf;
+use bgg;
 
 create table user(
 	id int not null auto_increment,	
